@@ -1,18 +1,11 @@
 ﻿using EscapeRoom.Core;
-using EscapeRoom.Core;
-using EscapeRoom.Entities;
 using EscapeRoom.Entities;
 using EscapeRoom.UI;
-using EscapeRoom.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -72,8 +65,8 @@ namespace EscapeRoom.Screens
             // Muebles (ajusta a tu arte)
             var camaSize = new Point((int)(Assets.Cama.Width * _scale), (int)(Assets.Cama.Height * _scale));
             var mesaSize = new Point((int)(Assets.Mesita.Width * _scale), (int)(Assets.Mesita.Height * _scale));
-            _dstCama = new Rectangle(_dstPiso.X + (int)(vp.Width * 0.10f), _dstPiso.Y + (int)(vp.Height * 0.10f), camaSize.X, camaSize.Y);
-            _dstMesita = new Rectangle(_dstPiso.X + (int)(vp.Width * 0.02f), _dstPiso.Y + (int)(vp.Height * 0.1f), mesaSize.X, mesaSize.Y);
+            _dstCama = new Rectangle(_dstPiso.X + (int)(vp.Width * 0.7f), _dstPiso.Y + (int)(vp.Height * 0.1f), camaSize.X, camaSize.Y);
+            _dstMesita = new Rectangle(_dstPiso.X + (int)(vp.Width * 0.1f), _dstPiso.Y + (int)(vp.Height * 0.1f), mesaSize.X, mesaSize.Y);
 
             // Evan spawn
             var evTex = Assets.EvanFrente1;
@@ -140,8 +133,8 @@ namespace EscapeRoom.Screens
             _doorTopRect = new Rectangle(doorX, top, doorWidth, topThickness);
 
             // Muebles (activa si quieres colisión)
-            //  _solids.Add(_dstCama);
-            // _solids.Add(_dstMesita);
+            _solids.Add(_dstCama);
+            _solids.Add(_dstMesita);
         }
 
         public override void Update(GameTime gt)

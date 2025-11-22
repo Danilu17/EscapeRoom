@@ -38,7 +38,7 @@ namespace EscapeRoom.Screens
             var vp = Device.Viewport;
             Batcher.Begin();
 
-            // Fondo rojo manu.png escalado a alto, centrado horizontalmente
+            // Fondo rojo menu.png escalado a alto, centrado horizontalmente
             var dst = DrawUtil.ScaleToHeight(Assets.Manu, vp.Width, vp.Height);
             Batcher.Draw(Assets.Manu, dst, Color.White);
 

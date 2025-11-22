@@ -21,6 +21,7 @@ namespace EscapeRoom
             _graphics.PreferredBackBufferHeight = 720;
             _graphics.ApplyChanges();
             Window.AllowUserResizing = true;
+
         }
 
         protected override void LoadContent()

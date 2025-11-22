@@ -14,7 +14,7 @@ namespace EscapeRoom.Entities
         public Vector2 Pos;
         public float Speed = 140f;
         // el tamaño en bedroomscreen
-        public float Scale = 0.10f;
+        public float Scale = 0.20f;
 
         enum Dir { Down, Up, Left, Right }
         Dir _dir = Dir.Down;
