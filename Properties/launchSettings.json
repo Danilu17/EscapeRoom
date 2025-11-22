@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EscapeRoom": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\USUARIO\\source\\repos\\EscapeRoom"
+    }
+  }
+}
