@@ -17,14 +17,20 @@ namespace EscapeRoom.Screens
         readonly List<Rectangle> _solids = new();
         bool _debug;
 
-        Rectangle _dstBackground;          // fondo más al fondo (Fondo3P)
-        Rectangle _dstPiso, _dstBorde;     // Fondo1P y borde
+        Rectangle _dstBackground;
+        Rectangle _dstPiso, _dstBorde;
         Rectangle _dstReloj, _dstCuadrosL, _dstCuadrosR;
-        Rectangle _doorBottomRect;         // puerta hacia Bedroom
+        Rectangle _doorBottomRect;
         float _scale;
 
         readonly float _entryX;
         readonly float _evanScale;
+
+        // -----------------------------------------
+        // SPAWN EN LA SALA — Evan pegado a la puerta
+        // -----------------------------------------
+        public static float SpawnOffsetX_Sala = 0f;
+        public static float SpawnOffsetY_Sala = 100f;
 
         public SalaScreen(float entryX, float evanScale)
         {
@@ -36,29 +42,21 @@ namespace EscapeRoom.Screens
         {
             var vp = Device.Viewport;
 
-            // -----------------------------
-            // FONDO + PISO + BORDE
-            // -----------------------------
-
-            // Fondo general (puede ser césped o un patrón, está detrás de todo)
+            // Fondo
             _dstBackground = ScaleToHeight(Assets.Fondo3P, vp.Width, vp.Height);
 
-            // Piso de la sala (Fondo1P) y borde de pared (Fondo1)
+            // Piso y borde
             _dstPiso = ScaleToHeight(Assets.SalaPiso, vp.Width, vp.Height);
             _dstBorde = ScaleToHeight(Assets.SalaBorde, vp.Width, vp.Height);
             _scale = (float)_dstPiso.Height / Assets.SalaPiso.Height;
 
-            // -----------------------------
-            // OBJETOS: RELOJ + CUADROS
-            // -----------------------------
+            // RELOJ Y CUADROS
+            float cuadroFactor = 0.22f;
             float relojFactor = 0.45f;
 
             var relojSize = new Point(
                 (int)(Assets.Reloj.Width * _scale * relojFactor),
                 (int)(Assets.Reloj.Height * _scale * relojFactor));
-
-            // factor para achicar cuadros
-            float cuadroFactor = 0.20f;  // <- CAMBIÁ ESTO si los querés más grandes/chicos
 
             var cuadros1Size = new Point(
                 (int)(Assets.Cuadros1.Width * _scale * cuadroFactor),
@@ -68,38 +66,31 @@ namespace EscapeRoom.Screens
                 (int)(Assets.Cuadros2.Width * _scale * cuadroFactor),
                 (int)(Assets.Cuadros2.Height * _scale * cuadroFactor));
 
-            // Reloj centrado, un poco más arriba (como en FNaF)
             _dstReloj = new Rectangle(
                 _dstPiso.Center.X - relojSize.X / 1,
-                _dstPiso.Top + (int)(30 * _scale),
+                _dstPiso.Top + (int)(40 * _scale),
                 relojSize.X, relojSize.Y);
 
-            // Cuadro izquierdo (Cuadros1) – más abajo
             _dstCuadrosL = new Rectangle(
-                _dstPiso.Left + (int)(250 * _scale),
-                _dstPiso.Top + (int)(40 * _scale),
+                _dstPiso.Left + (int)(200 * _scale),
+                _dstPiso.Top + (int)(20 * _scale),
                 cuadros1Size.X, cuadros1Size.Y);
 
-            // Cuadro derecho (Cuadros2) – más arriba (lado derecho)
             _dstCuadrosR = new Rectangle(
                 _dstPiso.Right - (int)(800 * _scale),
-                _dstPiso.Top + (int)(60 * _scale),
+                _dstPiso.Top + (int)(40 * _scale),
                 cuadros2Size.X, cuadros2Size.Y);
 
-            // -----------------------------
-            // COLISIONES (PAREDES + PUERTA)
-            // -----------------------------
+            // COLLIDERS
             SalaColliders.Build(_dstBorde, _scale, _solids, out _doorBottomRect);
 
-            // -----------------------------
-            // SPAWN DE EVAN
-            // -----------------------------
+            // SPAWN EVAN — pegado a la puerta inferior
             var evTex = Assets.EvanFrente1;
             int evW = (int)(evTex.Width * _evanScale);
             int evH = (int)(evTex.Height * _evanScale);
 
-            float x = _entryX - evW / 2f;
-            float y = _doorBottomRect.Y - evH + 2; // justo dentro de la sala, encima de la puerta
+            float x = _entryX - evW / 2f + SpawnOffsetX_Sala;
+            float y = _doorBottomRect.Y - evH + SpawnOffsetY_Sala;
 
             _evan = new Evan(new Vector2(x, y))
             {
@@ -122,12 +113,11 @@ namespace EscapeRoom.Screens
 
             _evan.Update(gt, _solids);
 
-            // Volver al cuarto por la puerta inferior
+            // PASAR AL CUARTO
             var evCenter = EvanCenter();
             if (_doorBottomRect.Contains(evCenter))
             {
-                ScreenManager.Replace(
-                    new BedroomScreen(entryXFromHall: evCenter.X, evanScale: _evan.Scale));
+                ScreenManager.Replace(new BedroomScreen(evCenter.X, _evan.Scale));
                 return;
             }
         }
@@ -141,15 +131,7 @@ namespace EscapeRoom.Screens
 
         public override void Draw(GameTime gt)
         {
-            var vp = Device.Viewport;
             Batcher.Begin();
-
-            // ORDEN DE CAPAS:
-            // 1) Fondo3P (capa más atrás)
-            // 2) Piso de la Sala (Fondo1P)
-            // 3) Paredes (Fondo1)
-            // 4) Cuadros + reloj
-            // 5) Evan siempre adelante
 
             Batcher.Draw(Assets.Fondo3P, _dstBackground, Color.White);
             Batcher.Draw(Assets.SalaPiso, _dstPiso, Color.White);
