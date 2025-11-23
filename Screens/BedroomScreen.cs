@@ -19,15 +19,15 @@ namespace EscapeRoom.Screens
         readonly List<Rectangle> _solids = new();
         bool _debug;
 
-        // Tutorial (se muestra 4s pero no bloquea)
-        double _tutorialTimer = 4.0;
+        // Tutorial (se muestra solo la primera vez)
+        double _tutorialTimer = 0.0;
         readonly string[] _tutorial = {
             "Usa WASD para moverte.",
             "Presiona E para interactuar con objetos.",
             "Presiona Enter para continuar dialogos."
         };
 
-        // HUD (pensamientos iniciales – opcional; puedes quitar si no lo usas aquí)
+        // Pensamientos iniciales (HUD inferior)
         readonly string[] _thoughts = {
             "Donde estoy...? Otra vez este lugar...",
             "Siempre es el mismo cuarto, pero algo cambia cada noche.",
@@ -37,62 +37,96 @@ namespace EscapeRoom.Screens
         DialogueBox _hud;
 
         // Arte y escalas
-        Rectangle _dstPiso, _dstBorde, _dstCama, _dstMesita;
+        Rectangle _dstPiso, _dstBorde, _dstCama, _dstMesitadeluz;
         float _scale;
 
-        // Puertas (huecos en pared)
-        Rectangle _doorTopRect;      // sale a Sala (arriba)
-        Rectangle _doorBottomRect;   // entrada desde Sala (abajo) – opcional por si vuelves
+        // Puertas
+        Rectangle _doorTopRect;      // puerta real hacia Sala (arriba)
 
-        // Permite entrada desde otra pantalla conservando X o Y
-        float? _entryXFromBottom; // si vienes desde abajo (Sala -> Bedroom)
+        // Si venimos desde la Sala, guardamos la X de la puerta para reaparecer
+        readonly float? _entryXFromHall;
+        readonly float _evanScale;
 
-        public BedroomScreen(float? entryXFromBottom = null, float evanScale = 0.14f)
+        public BedroomScreen(float? entryXFromHall = null, float evanScale = 0.20f)
         {
-            _entryXFromBottom = entryXFromBottom;
+            _entryXFromHall = entryXFromHall;
             _evanScale = evanScale;
         }
-        readonly float _evanScale;
 
         public override void OnPush()
         {
             var vp = Device.Viewport;
 
+            // Piso y borde escalados a la altura de la pantalla
             _dstPiso = ScaleToHeight(Assets.Piso, vp.Width, vp.Height);
             _dstBorde = ScaleToHeight(Assets.Borde, vp.Width, vp.Height);
             _scale = (float)_dstPiso.Height / Assets.Piso.Height;
 
-            // Muebles (ajusta a tu arte)
-            var camaSize = new Point((int)(Assets.Cama.Width * _scale), (int)(Assets.Cama.Height * _scale));
-            var mesaSize = new Point((int)(Assets.Mesita.Width * _scale), (int)(Assets.Mesita.Height * _scale));
-            _dstCama = new Rectangle(_dstPiso.X + (int)(vp.Width * 0.7f), _dstPiso.Y + (int)(vp.Height * 0.1f), camaSize.X, camaSize.Y);
-            _dstMesita = new Rectangle(_dstPiso.X + (int)(vp.Width * 0.1f), _dstPiso.Y + (int)(vp.Height * 0.1f), mesaSize.X, mesaSize.Y);
+            // Muebles
+            var camaSize = new Point(
+                (int)(Assets.Cama.Width * _scale),
+                (int)(Assets.Cama.Height * _scale));
 
-            // Evan spawn
+            var mesitadeluzSize = new Point(
+                (int)(Assets.MesitaDeLuz.Width * _scale),
+                (int)(Assets.MesitaDeLuz.Height * _scale));
+
+            _dstCama = new Rectangle(
+                _dstPiso.X + (int)(vp.Width * 0.7f),
+                _dstPiso.Y + (int)(vp.Height * 0.1f),
+                camaSize.X, camaSize.Y);
+
+            _dstMesitadeluz = new Rectangle(
+                _dstPiso.X + (int)(vp.Width * 0.1f),
+                _dstPiso.Y + (int)(vp.Height * 0.1f),
+                mesitadeluzSize.X, mesitadeluzSize.Y);
+
+            // --- COLISIONES DESDE ARCHIVO SEPARADO ---
+            BedroomColliders.Build(
+                _dstBorde,
+                _scale,
+                _dstCama,
+                _dstMesitadeluz,
+                _solids,
+                out _doorTopRect);
+
+            // --- SPAWN DE EVAN ---
             var evTex = Assets.EvanFrente1;
-            var evW = (int)(evTex.Width * _evanScale);
-            var evH = (int)(evTex.Height * _evanScale);
-
+            int evW = (int)(evTex.Width * _evanScale);
+            int evH = (int)(evTex.Height * _evanScale);
             Vector2 spawn;
-            if (_entryXFromBottom.HasValue)
+
+            if (_entryXFromHall.HasValue)
             {
-                // regresa desde Sala: aparece apenas dentro del cuarto (borde inferior)
-                float x = _entryXFromBottom.Value - evW / 2f;
-                float y = _dstBorde.Bottom - (int)(73 * _scale) - evH - 2; // justo por encima del grosor inferior
+                // Viene desde la Sala: entra por la PUERTA SUPERIOR, bajando
+                float xCenter = _entryXFromHall.Value;
+                float x = xCenter - evW / 2f;
+                // justo por debajo del marco de la puerta
+                float y = _doorTopRect.Bottom + 2;
                 spawn = new Vector2(x, y);
             }
             else
             {
-                // inicio normal: centro
-                spawn = new Vector2((vp.Width - evW) / 2f, (vp.Height - evH) / 2f);
+                // Primera vez en el juego: aparece en el centro del cuarto
+                spawn = new Vector2(
+                    (vp.Width - evW) / 2f,
+                    (vp.Height - evH) / 2f);
             }
 
             _evan = new Evan(spawn) { Scale = _evanScale, Speed = 140f };
 
+            // --- HUD Y TUTORIAL: SOLO LA PRIMERA VEZ ---
             _hud = new DialogueBox(Assets.Fuente);
-            _hud.Enqueue(_thoughts);
-
-            BuildCollidersAndDoors();
+            if (!GameFlags.BedroomIntroShown)
+            {
+                _hud.Enqueue(_thoughts);
+                _tutorialTimer = 4.0;            // instrucciones arriba durante 4 segundos
+                GameFlags.BedroomIntroShown = true;
+            }
+            else
+            {
+                _tutorialTimer = 0.0;            // no volver a mostrar instrucciones
+            }
         }
 
         static Rectangle ScaleToHeight(Texture2D tex, int viewportW, int viewportH)
@@ -103,54 +137,21 @@ namespace EscapeRoom.Screens
             return new Rectangle(x, 0, w, viewportH);
         }
 
-        void BuildCollidersAndDoors()
-        {
-            _solids.Clear();
-
-            int left = _dstBorde.Left;
-            int right = _dstBorde.Right;
-            int top = _dstBorde.Top;
-            int bottom = _dstBorde.Bottom;
-
-            // Grosores (ajustados a tu arte de borde)
-            int topThickness = (int)(112 * _scale);
-            int leftThickness = (int)(90 * _scale);
-            int rightThickness = (int)(126 * _scale);
-            int bottomThickness = (int)(73 * _scale);
-
-            // Laterales e inferior sólidos
-            _solids.Add(new Rectangle(left, top, leftThickness, bottom - top));
-            _solids.Add(new Rectangle(right - rightThickness, top, rightThickness, bottom - top));
-            _solids.Add(new Rectangle(left, bottom - bottomThickness, right - left, bottomThickness));
-            _doorBottomRect = new Rectangle(left + (int)((right - left) * 0.40f), bottom - bottomThickness, (int)((right - left) * 0.20f), bottomThickness); // opcional
-
-            // Superior con hueco desplazado (puerta hacia Sala)
-            int doorWidth = (int)((right - left) * 0.22f);
-            int doorOffsetX = (int)(45 * _scale);
-            int doorX = ((left + right) / 2 - doorWidth / 2) + doorOffsetX;
-            _solids.Add(new Rectangle(left, top, doorX - left, topThickness)); // tramo izq
-            _solids.Add(new Rectangle(doorX + doorWidth, top, right - (doorX + doorWidth), topThickness)); // tramo der
-            _doorTopRect = new Rectangle(doorX, top, doorWidth, topThickness);
-
-            // Muebles (activa si quieres colisión)
-            _solids.Add(_dstCama);
-            _solids.Add(_dstMesita);
-        }
-
         public override void Update(GameTime gt)
         {
             if (Input.KeyPressed(Keys.F1)) _debug = !_debug;
 
-            // Movimiento SIEMPRE
+            // Movimiento y colisiones
             _evan.Update(gt, _solids);
 
-            // Pensamientos (Enter para avanzar; no bloquea)
+            // HUD (pensamientos) – Enter para avanzar
             _hud.Update();
 
-            // Tutorial fade
-            if (_tutorialTimer > 0) _tutorialTimer -= gt.ElapsedGameTime.TotalSeconds;
+            // Tutorial fade (solo si se activó la primera vez)
+            if (_tutorialTimer > 0)
+                _tutorialTimer -= gt.ElapsedGameTime.TotalSeconds;
 
-            // --- Transición de cuarto -> Sala por arriba ---
+            // --- Transición de cuarto -> Sala por la PUERTA SUPERIOR ---
             var evCenter = EvanCenter();
             if (_doorTopRect.Contains(evCenter))
             {
@@ -161,8 +162,8 @@ namespace EscapeRoom.Screens
 
         Point EvanCenter()
         {
-            var evW = (int)(Assets.EvanFrente1.Width * _evan.Scale);
-            var evH = (int)(Assets.EvanFrente1.Height * _evan.Scale);
+            int evW = (int)(Assets.EvanFrente1.Width * _evan.Scale);
+            int evH = (int)(Assets.EvanFrente1.Height * _evan.Scale);
             return new Point((int)(_evan.Pos.X + evW / 2f), (int)(_evan.Pos.Y + evH / 2f));
         }
 
@@ -171,35 +172,44 @@ namespace EscapeRoom.Screens
             var vp = Device.Viewport;
             Batcher.Begin();
 
+            // ORDEN DE CAPAS:
+            // 1) Piso (fondo)
+            // 2) Paredes/borde
+            // 3) Muebles
+            // 4) Evan SIEMPRE ADELANTE
             Batcher.Draw(Assets.Piso, _dstPiso, Color.White);
-            Batcher.Draw(Assets.Cama, _dstCama, Color.White);
-            Batcher.Draw(Assets.Mesita, _dstMesita, Color.White);
-            _evan.Draw(Batcher);
             Batcher.Draw(Assets.Borde, _dstBorde, Color.White);
+            Batcher.Draw(Assets.Cama, _dstCama, Color.White);
+            Batcher.Draw(Assets.MesitaDeLuz, _dstMesitadeluz, Color.White);
 
-            // Tutorial
+            _evan.Draw(Batcher);
+
+            // Tutorial de controles (solo primera vez)
             if (_tutorialTimer > 0)
             {
                 float a = MathHelper.Clamp((float)(_tutorialTimer / 4.0), 0f, 1f);
-                Batcher.Draw(Assets.Pixel, new Rectangle(0, 0, vp.Width, vp.Height), new((byte)0, (byte)0, (byte)0, (byte)(a * 140f)));
-                var lines = string.Join("\n\n", _tutorial);
+                Batcher.Draw(Assets.Pixel,
+                    new Rectangle(0, 0, vp.Width, vp.Height),
+                    new Color((byte)0, (byte)0, (byte)0, (byte)(a * 140f)));
+
+                string lines = string.Join("\n\n", _tutorial);
                 var size = Assets.FuenteInstr.MeasureString(lines);
                 var pos = new Vector2((vp.Width - size.X) / 2f, (int)(vp.Height * 0.12f));
                 Batcher.DrawString(Assets.FuenteInstr, lines, pos, Color.White);
             }
 
-            // Pensamientos HUD
+            // Pensamientos HUD inferior
             _hud.Draw(Batcher, vp);
 
             if (_debug)
             {
-                foreach (var r in _solids) Batcher.Draw(Assets.Pixel, r, new Color(255, 0, 0, 90));
+                foreach (var r in _solids)
+                    Batcher.Draw(Assets.Pixel, r, new Color(255, 0, 0, 90));
+
                 Batcher.Draw(Assets.Pixel, _doorTopRect, new Color(0, 255, 0, 60));
-                Batcher.Draw(Assets.Pixel, _doorBottomRect, new Color(0, 0, 255, 40));
             }
 
             Batcher.End();
         }
     }
 }
-
