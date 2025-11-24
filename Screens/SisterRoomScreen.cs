@@ -62,7 +62,7 @@ namespace EscapeRoom.Screens
             //Ubicaciones muebles
             _dstCamaRosa = new Rectangle(
                 _dstPiso.Right - camaSize.X - (int)(250 * _scale),
-                _dstPiso.Top + (int)(400 * _scale),
+                _dstPiso.Top + (int)(350 * _scale),
                 camaSize.X, camaSize.Y);
 
             _dstMesita = new Rectangle(
@@ -71,7 +71,7 @@ namespace EscapeRoom.Screens
                 mesitaSize.X, mesitaSize.Y);
 
             _dstCuadro = new Rectangle(
-                _dstPiso.Center.X - cuadroSize.X / 1,
+                _dstPiso.Center.X - cuadroSize.X - (int)(200 * _scale),
                 _dstPiso.Top + (int)(60 * _scale),
                 cuadroSize.X, cuadroSize.Y);
 

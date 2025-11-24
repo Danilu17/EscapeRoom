@@ -13,8 +13,9 @@ namespace EscapeRoom.Screens
 {
     public enum SalaEntryPoint
     {
-        FromBedroom,
-        FromSister
+        FromBedroom, // puerta inferior
+        FromSister,  // puerta derecha
+        FromSala2    // puerta izquierda
     }
 
     public class SalaScreen : Screen
@@ -27,14 +28,16 @@ namespace EscapeRoom.Screens
         Rectangle _dstPiso, _dstBorde;
         Rectangle _dstReloj, _dstCuadro1, _dstCuadro2;
 
-        Rectangle _doorBottomRect;  // hacia dormitorio Evan
-        Rectangle _doorRightRect;   // hacia cuarto hermana
+        Rectangle _doorBottomRect;  // Bedroom
+        Rectangle _doorRightRect;   // Sister
+        Rectangle _doorLeftRect;    // Sala2
 
         float _scale;
         readonly SalaEntryPoint _entryFrom;
-        readonly float _entryCoord;
+        readonly float _entryCoord;   // X o Y según puerta
         readonly float _evanScale;
 
+        // offsets ajustables si querés
         public static float SpawnOffsetX_Sala = 0f;
         public static float SpawnOffsetY_Sala = 100f;
 
@@ -92,36 +95,48 @@ namespace EscapeRoom.Screens
                 _scale,
                 _solids,
                 out _doorBottomRect,
-                out _doorRightRect
+                out _doorRightRect,
+                out _doorLeftRect
             );
 
-            // -------- SPawn Evan --------
+            // --------- Spawn Evan ---------
             var evTex = Assets.EvanFrente1;
             int evW = (int)(evTex.Width * _evanScale);
             int evH = (int)(evTex.Height * _evanScale);
 
-            if (_entryFrom == SalaEntryPoint.FromBedroom)
-            {
-                float x = _entryCoord - evW / 2f + SpawnOffsetX_Sala;
-                float y = _doorBottomRect.Y - evH + SpawnOffsetY_Sala;
+            Vector2 spawn;
 
-                _evan = new Evan(new Vector2(x, y))
-                {
-                    Scale = _evanScale,
-                    Speed = 140f
-                };
-            }
-            else // FromSister
+            switch (_entryFrom)
             {
-                float y = _entryCoord - evH / 2f;
-                float x = _doorRightRect.Left - evW - 5;
-
-                _evan = new Evan(new Vector2(x, y))
-                {
-                    Scale = _evanScale,
-                    Speed = 140f
-                };
+                case SalaEntryPoint.FromBedroom:
+                    {
+                        float x = _entryCoord - evW / 2f + SpawnOffsetX_Sala;
+                        float y = _doorBottomRect.Y - evH + SpawnOffsetY_Sala;
+                        spawn = new Vector2(x, y);
+                        break;
+                    }
+                case SalaEntryPoint.FromSister:
+                    {
+                        float y = _entryCoord - evH / 2f;
+                        float x = _doorRightRect.Left - evW - 5; // un poco dentro de la sala
+                        spawn = new Vector2(x, y);
+                        break;
+                    }
+                case SalaEntryPoint.FromSala2:
+                default:
+                    {
+                        float y = _entryCoord - evH / 2f;
+                        float x = _doorLeftRect.Right + 5; // un poco dentro de la sala
+                        spawn = new Vector2(x, y);
+                        break;
+                    }
             }
+
+            _evan = new Evan(spawn)
+            {
+                Scale = _evanScale,
+                Speed = 140f
+            };
         }
 
         static Rectangle ScaleToHeight(Texture2D tex, int viewportW, int viewportH)
@@ -141,15 +156,27 @@ namespace EscapeRoom.Screens
 
             var evCenter = EvanCenter();
 
+            // abajo → Bedroom
             if (_doorBottomRect.Contains(evCenter))
             {
-                ScreenManager.Replace(new BedroomScreen(evCenter.X, _evan.Scale));
+                ScreenManager.Replace(
+                    new BedroomScreen(evCenter.X, _evan.Scale));
                 return;
             }
 
+            // derecha → Sister
             if (_doorRightRect.Contains(evCenter))
             {
-                ScreenManager.Replace(new SisterRoomScreen(evCenter.Y, _evan.Scale));
+                ScreenManager.Replace(
+                    new SisterRoomScreen(evCenter.Y, _evan.Scale));
+                return;
+            }
+
+            // izquierda → Sala2
+            if (_doorLeftRect.Contains(evCenter))
+            {
+                ScreenManager.Replace(
+                    new Sala2Screen(evCenter.Y, _evan.Scale));
                 return;
             }
         }
@@ -182,9 +209,11 @@ namespace EscapeRoom.Screens
 
                 Batcher.Draw(Assets.Pixel, _doorBottomRect, new Color(0, 255, 0, 90));
                 Batcher.Draw(Assets.Pixel, _doorRightRect, new Color(0, 180, 0, 90));
+                Batcher.Draw(Assets.Pixel, _doorLeftRect, new Color(0, 180, 180, 90));
             }
 
             Batcher.End();
         }
     }
 }
+
