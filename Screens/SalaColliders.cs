@@ -7,27 +7,25 @@ using Microsoft.Xna.Framework;
 
 namespace EscapeRoom.Screens
 {
-    /// <summary>
-    /// Todas las medidas de colisión de la Sala/Hall.
-    /// Acá podés ajustar paredes y puerta inferior.
-    /// </summary>
     public static class SalaColliders
     {
-        // Grosor de paredes según la textura (antes del scale)
         public static int TopThicknessPx = 300;
         public static int LeftThicknessPx = 92;
         public static int RightThicknessPx = 90;
-        public static int BottomThicknessPx = 17;
+        public static int BottomThicknessPx = 15;
 
-        // Puerta inferior (que conecta con el cuarto de Evan)
-        public static float DoorWidthPercent = 0.22f; // porcentaje del ancho total
-        public static float DoorOffsetXPx = 61f;   // + derecha, - izquierda (en píxeles de la textura)
+        public static float DoorBottomWidthPercent = 0.22f;
+        public static float DoorBottomOffsetXPx = 61f;
+
+        public static int DoorRightHeightPx = 800;
+        public static int DoorRightOffsetYPx = 550;
 
         public static void Build(
             Rectangle borde,
             float scale,
             List<Rectangle> solids,
-            out Rectangle doorBottomRect)
+            out Rectangle doorBottomRect,
+            out Rectangle doorRightRect)
         {
             solids.Clear();
 
@@ -36,32 +34,42 @@ namespace EscapeRoom.Screens
             int top = borde.Top;
             int bottom = borde.Bottom;
 
-            int topThickness = (int)(TopThicknessPx * scale);
-            int leftThickness = (int)(LeftThicknessPx * scale);
-            int rightThickness = (int)(RightThicknessPx * scale);
-            int bottomThickness = (int)(BottomThicknessPx * scale);
+            int tTop = (int)(TopThicknessPx * scale);
+            int tLeft = (int)(LeftThicknessPx * scale);
+            int tRight = (int)(RightThicknessPx * scale);
+            int tBot = (int)(BottomThicknessPx * scale);
 
-            // PARED SUPERIOR COMPLETA
-            solids.Add(new Rectangle(left, top, right - left, topThickness));
+            // Superior
+            solids.Add(new Rectangle(left, top, right - left, tTop));
 
-            // LATERALES
-            solids.Add(new Rectangle(left, top, leftThickness, bottom - top));
-            solids.Add(new Rectangle(right - rightThickness, top, rightThickness, bottom - top));
+            // Izquierda
+            solids.Add(new Rectangle(left, top, tLeft, bottom - top));
 
-            // PARED INFERIOR CON HUECO (puerta al cuarto)
-            int doorWidth = (int)((right - left) * DoorWidthPercent);
-            int doorOffsetX = (int)(DoorOffsetXPx * scale);
+            // ----- Pared derecha con hueco -----
+            int doorRH = (int)(DoorRightHeightPx * scale);
+            int doorRY = top + (int)(DoorRightOffsetYPx * scale);
 
-            // puerta centrada pero corrida por el offset
-            int doorX = (left + right) / 2 - doorWidth / 2 + doorOffsetX;
+            solids.Add(new Rectangle(right - tRight, top, tRight, doorRY - top));
+            solids.Add(new Rectangle(right - tRight, doorRY + doorRH, tRight, bottom - (doorRY + doorRH)));
 
-            // Partes sólidas izquierda/derecha
-            solids.Add(new Rectangle(left, bottom - bottomThickness, doorX - left, bottomThickness));
-            solids.Add(new Rectangle(doorX + doorWidth, bottom - bottomThickness,
-                                     right - (doorX + doorWidth), bottomThickness));
+            doorRightRect = new Rectangle(
+                right - tRight,
+                doorRY,
+                tRight,
+                doorRH);
 
-            // Hueco = puerta del medio inferior
-            doorBottomRect = new Rectangle(doorX, bottom - bottomThickness, doorWidth, bottomThickness);
+            // ----- Pared inferior con hueco -----
+            int doorBW = (int)((right - left) * DoorBottomWidthPercent);
+            int doorBX = (left + right) / 2 - doorBW / 2 + (int)(DoorBottomOffsetXPx * scale);
+
+            solids.Add(new Rectangle(left, bottom - tBot, doorBX - left, tBot));
+            solids.Add(new Rectangle(doorBX + doorBW, bottom - tBot, right - (doorBX + doorBW), tBot));
+
+            doorBottomRect = new Rectangle(
+                doorBX,
+                bottom - tBot,
+                doorBW,
+                tBot);
         }
     }
 }

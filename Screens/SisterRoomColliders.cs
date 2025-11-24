@@ -1,64 +1,94 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using EscapeRoom.Core;
+using EscapeRoom.Entities;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
-//namespace EscapeRoom.Screens
-//{
-//    public static class SisterRoomColliders
-//    {
-//        // Grosor antes del scale (tomado del patrón de tus otras salas)
-//        public static int TopThicknessPx = 110;
-//        public static int LeftThicknessPx = 92;
-//        public static int RightThicknessPx = 124;
-//        public static int BottomThicknessPx = 78;
+namespace EscapeRoom.Screens
+{
+    public static class SisterRoomColliders
+    {
+        // ---------- Paredes ----------
+        public static int TopThicknessPx = 300;
+        public static int LeftThicknessPx = 115;
+        public static int RightThicknessPx = 200;
+        public static int BottomThicknessPx = 15;
 
-//        // Hueco izquierdo → vuelve a la Sala
-//        public static float LeftDoorHeightPercent = 0.22f;
-//        public static float LeftDoorYPercent = 0.58f; // ajustable: 0 = arriba, 1 = abajo
+        // ---------- Puerta izquierda ----------
+        public static int DoorLeftHeightPx = 800;
+        public static int DoorLeftOffsetYPx = 550;
 
-//        public static void Build(
-//            Rectangle borde,
-//            float scale,
-//            List<Rectangle> solids,
-//            out Rectangle doorLeftRect
-//        )
-//        {
-//            solids.Clear();
+        // ---------- OFFSETS OBJETOS (EDITABLES A MANO) ----------
+        // Cama rosa
+        public static int CamaOffsetLeftPx = 40;
+        public static int CamaOffsetTopPx = 60;
+        public static int CamaOffsetRightPx = 60;
+        public static int CamaOffsetBottomPx = 200;
 
-//            int left = borde.Left;
-//            int right = borde.Right;
-//            int top = borde.Top;
-//            int bottom = borde.Bottom;
+        // Mesita
+        public static int MesitaOffsetLeftPx = 20;
+        public static int MesitaOffsetTopPx = 20;
+        public static int MesitaOffsetRightPx = 20;
+        public static int MesitaOffsetBottomPx = 200;
 
-//            int topTh = (int)(TopThicknessPx * scale);
-//            int leftTh = (int)(LeftThicknessPx * scale);
-//            int rightTh = (int)(RightThicknessPx * scale);
-//            int bottomTh = (int)(BottomThicknessPx * scale);
+        public static void Build(
+            Rectangle borde,
+            float scale,
+            List<Rectangle> solids,
+            out Rectangle doorLeftRect,
+            Rectangle cama,
+            Rectangle mesita)
+        {
+            solids.Clear();
 
-//            // ----------- PARED SUPERIOR -----------
-//            solids.Add(new Rectangle(left, top, right - left, topTh));
+            int left = borde.Left;
+            int right = borde.Right;
+            int top = borde.Top;
+            int bottom = borde.Bottom;
 
-//            // ----------- PARED DERECHA COMPLETA -----------
-//            solids.Add(new Rectangle(right - rightTh, top, rightTh, bottom - top));
+            int tTop = (int)(TopThicknessPx * scale);
+            int tLeft = (int)(LeftThicknessPx * scale);
+            int tRight = (int)(RightThicknessPx * scale);
+            int tBot = (int)(BottomThicknessPx * scale);
 
-//            // ----------- PARED INFERIOR COMPLETA -----------
-//            solids.Add(new Rectangle(left, bottom - bottomTh, right - left, bottomTh));
+            // ---------- PAREDES SUPERIOR + DERECHA ----------
+            solids.Add(new Rectangle(left, top, right - left, tTop));
+            solids.Add(new Rectangle(right - tRight, top, tRight, bottom - top));
 
-//            // ----------- PARED IZQUIERDA (con hueco) -----------
-//            int doorH = (int)((bottom - top) * LeftDoorHeightPercent);
-//            int doorY = top + (int)((bottom - top) * LeftDoorYPercent);
+            // ---------- PARED IZQUIERDA CON HUECO ----------
+            int doorH = (int)(DoorLeftHeightPx * scale);
+            int doorY = top + (int)(DoorLeftOffsetYPx * scale);
 
-//            // superior del hueco
-//            solids.Add(new Rectangle(left, top, leftTh, doorY - top));
+            solids.Add(new Rectangle(left, top, tLeft, doorY - top));
+            solids.Add(new Rectangle(left, doorY + doorH, tLeft, bottom - (doorY + doorH)));
 
-//            // inferior del hueco
-//            solids.Add(new Rectangle(left, doorY + doorH, leftTh, bottom - (doorY + doorH)));
+            doorLeftRect = new Rectangle(left, doorY, tLeft, doorH);
 
-//            // puerta válida
-//            doorLeftRect = new Rectangle(left, doorY, leftTh, doorH);
-//        }
-//    }
-//}
+            // ---------- PARED INFERIOR ----------
+            solids.Add(new Rectangle(left, bottom - tBot, right - left, tBot));
+
+            // ---------- CAMA (con offsets personalizados) ----------
+            int camaX = cama.X + (int)(CamaOffsetLeftPx * scale);
+            int camaY = cama.Y + (int)(CamaOffsetTopPx * scale);
+            int camaW = cama.Width - (int)((CamaOffsetLeftPx + CamaOffsetRightPx) * scale);
+            int camaH = cama.Height - (int)((CamaOffsetTopPx + CamaOffsetBottomPx) * scale);
+
+            solids.Add(new Rectangle(camaX, camaY, camaW, camaH));
+
+            // ---------- MESITA (con offsets personalizados) ----------
+            int mesitaX = mesita.X + (int)(MesitaOffsetLeftPx * scale);
+            int mesitaY = mesita.Y + (int)(MesitaOffsetTopPx * scale);
+            int mesitaW = mesita.Width - (int)((MesitaOffsetLeftPx + MesitaOffsetRightPx) * scale);
+            int mesitaH = mesita.Height - (int)((MesitaOffsetTopPx + MesitaOffsetBottomPx) * scale);
+
+            solids.Add(new Rectangle(mesitaX, mesitaY, mesitaW, mesitaH));
+        }
+    }
+}
