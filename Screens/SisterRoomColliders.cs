@@ -19,7 +19,7 @@ namespace EscapeRoom.Screens
         public static int TopThicknessPx = 300;
         public static int LeftThicknessPx = 115;
         public static int RightThicknessPx = 200;
-        public static int BottomThicknessPx = 15;
+        public static int BottomThicknessPx = 13;
 
         // ---------- Puerta izquierda ----------
         public static int DoorLeftHeightPx = 800;

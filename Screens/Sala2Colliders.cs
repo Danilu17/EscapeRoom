@@ -22,7 +22,7 @@ namespace EscapeRoom.Screens
 
         // Puerta derecha (hacia Sala)
         public static int DoorRightHeightPx = 800;
-        public static int DoorRightOffsetYPx = 600;
+        public static int DoorRightOffsetYPx = 550;
 
         // Offsets manuales del SILLÓN (en píxeles de textura)
         public static int SillonOffsetLeftPx = 20;

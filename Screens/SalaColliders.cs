@@ -18,7 +18,7 @@ namespace EscapeRoom.Screens
         public static int TopThicknessPx = 300;
         public static int LeftThicknessPx = 92;
         public static int RightThicknessPx = 90;
-        public static int BottomThicknessPx = 15;
+        public static int BottomThicknessPx = 13;
 
         // Puerta inferior (cuarto de Evan)
         public static float DoorBottomWidthPercent = 0.22f;

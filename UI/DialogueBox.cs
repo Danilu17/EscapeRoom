@@ -55,13 +55,13 @@ namespace EscapeRoom.UI
             string raw = _queue.Peek();
             string text = Sanitize(raw);  // <- evita crash por glyphs faltantes
 
-            int boxWidth = (int)(vp.Width * 0.88f);
-            int boxHeight = (int)(vp.Height * 0.22f);
+            int boxWidth = (int)(vp.Width * 0.90f);
+            int boxHeight = (int)(vp.Height * 0.20f);
             int x = (vp.Width - boxWidth) / 2;
             int y = vp.Height - boxHeight - _margin;
 
             // Fondo
-            sb.Draw(Assets.Pixel, new Rectangle(x, y, boxWidth, boxHeight), new Color(0, 0, 0, 180));
+            sb.Draw(Assets.Pixel, new Rectangle(x, y, boxWidth, boxHeight), new Color(0, 0, 0));
 
             // Texto envuelto
             string wrapped = WrapText(_font, text, boxWidth - _padding * 2);
