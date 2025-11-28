@@ -29,8 +29,6 @@ namespace EscapeRoom
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Assets.Initialize(Content, GraphicsDevice);
             ScreenManager.Initialize(this, _spriteBatch);
-
-            // Arrancamos en la Pantalla de Inicio
             ScreenManager.Push(new MenuScreen());
         }
 

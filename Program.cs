@@ -1,7 +1,4 @@
-﻿//using var game = new EscapeRoom.Game1();
-//game.Run();
-
-using System;
+﻿using System;
 
 namespace EscapeRoom
 {

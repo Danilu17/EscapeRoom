@@ -7,12 +7,6 @@ using Microsoft.Xna.Framework;
 
 namespace EscapeRoom.Screens
 {
-    /// <summary>
-    /// Colisiones de la Sala2 (living):
-    /// - Paredes
-    /// - Puerta derecha (vuelve a Sala)
-    /// - Sillón y TV con offsets editables
-    /// </summary>
     public static class Sala2Colliders
     {
         public static int TopThicknessPx = 250;

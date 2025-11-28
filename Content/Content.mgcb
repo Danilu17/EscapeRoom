@@ -13,18 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin ../../../../Desktop/JUEGO/jumpscare.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:../../../../Desktop/JUEGO/jumpscare.png;Textures/jumpscare.png
-
 #begin Fonts/fuente.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -46,23 +34,23 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/titulo.spritefont
 
-#begin Songs/jumpscare_sonido.wav
+#begin songs/jumpscare_sonido.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:Songs/jumpscare_sonido.wav
+/build:songs/jumpscare_sonido.wav
 
-#begin Songs/minijuegocar_sonido.wav
+#begin songs/minijuegocar_sonido.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:Songs/minijuegocar_sonido.wav
+/build:songs/minijuegocar_sonido.wav
 
-#begin Songs/musicaFondo.mp3
+#begin songs/musicaFondo.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Songs/musicaFondo.mp3
+/build:songs/musicaFondo.mp3
 
 #begin Textures/Alfombra.png
 /importer:TextureImporter
@@ -363,6 +351,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Globo.png
+
+#begin Textures/jumpscare.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/jumpscare.png
 
 #begin Textures/llave.png
 /importer:TextureImporter

@@ -10,10 +10,6 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EscapeRoom.Screens
 {
-    /// <summary>
-    /// Pantalla 1.1: fondo totalmente negro + texto typewriter centrado.
-    /// Avanza con Enter SOLO cuando el texto terminó.
-    /// </summary>
     public class IntroScreen : Screen
     {
         // Frase EXACTA del requerimiento:

@@ -9,9 +9,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using EscapeRoom.UI;
-{
-    
-}
 
 namespace EscapeRoom.Screens
 {
@@ -77,7 +74,7 @@ namespace EscapeRoom.Screens
 
             _dstCuadro = new Rectangle(
                 _dstPiso.Center.X - cuadroSize.X - (int)(200 * _scale),
-                _dstPiso.Top + (int)(60 * _scale),
+                _dstPiso.Top + (int)(80 * _scale),
                 cuadroSize.X, cuadroSize.Y);
 
             SisterRoomColliders.Build(

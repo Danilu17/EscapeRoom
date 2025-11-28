@@ -85,15 +85,15 @@ namespace EscapeRoom.Screens
         {
             try
             {
-                _playerTex = Assets.Load<Texture2D>("auto_evan");
-                _enemyTex = Assets.Load<Texture2D>("auto_enemigo");
-                _jumpscareTex = Assets.Load<Texture2D>("jumpscare");
-                _font = Assets.Load<SpriteFont>("fuente");
+                _playerTex = Assets.AutoEvan;
+                _enemyTex = Assets.AutoEnemigo;
+                _jumpscareTex = Assets.Jumpscare;
+                _font = Assets.Fuente;
 
                 try
                 {
-                    _bgMusic = Assets.Load<Song>("minijuegocar_sonido");
-                    _jumpscareSound = Assets.Load<SoundEffect>("jumpscare_sonido");
+                    _bgMusic = Assets.Load<Song>("Songs/minijuegocar_sonido");
+                    _jumpscareSound = Assets.Load<SoundEffect>("Songs/jumpscare_sonido");
                 }
                 catch { /* Audio opcional */ }
 

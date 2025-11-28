@@ -7,12 +7,6 @@ using Microsoft.Xna.Framework;
 
 namespace EscapeRoom.Screens
 {
-    /// <summary>
-    /// Colisiones de la sala central:
-    /// - Puerta inferior → Bedroom
-    /// - Puerta derecha → Cuarto hermana
-    /// - Puerta izquierda → Sala2
-    /// </summary>
     public static class SalaColliders
     {
         public static int TopThicknessPx = 300;

@@ -7,10 +7,6 @@ using Microsoft.Xna.Framework;
 
 namespace EscapeRoom.Screens
 {
-    /// <summary>
-    /// TODAS las medidas de colisión del cuarto de Evan están acá.
-    /// Si querés ajustar paredes o puerta o muebles, tocas estos números.
-    /// </summary>
     public static class BedroomColliders
     {
         // Grosor de las paredes, en píxeles DE LA TEXTURA (antes del scale)

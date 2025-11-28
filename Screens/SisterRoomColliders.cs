@@ -8,8 +8,6 @@ using EscapeRoom.Core;
 using EscapeRoom.Entities;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 
 namespace EscapeRoom.Screens
 {

@@ -84,12 +84,12 @@ namespace EscapeRoom.Screens
 
         protected override void LoadContent()
         {
-            _texPlayer = Assets.Load<Texture2D>("BallonBoy");
-            _texBalloon = Assets.Load<Texture2D>("Globo");
-            _texCloud = Assets.Load<Texture2D>("Nube");
-            _texFrame = Assets.Load<Texture2D>("Marco");
-            _texPlatform = Assets.Load<Texture2D>("Plataforma");
-            _font = Assets.Load<SpriteFont>("fuente");
+            _texPlayer = Assets.BallonBoy;
+            _texBalloon = Assets.Globo;
+            _texCloud = Assets.Nube;
+            _texFrame = Assets.Marco;
+            _texPlatform = Assets.Plataforma;
+            _font = Assets.Fuente;
 
             InitializePlatforms();
             ResetGame();

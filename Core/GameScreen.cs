@@ -1,14 +1,9 @@
-﻿// File: EscapeRoom/Core/GameScreen.cs
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EscapeRoom.Core
 {
-    /// <summary>
-    /// Base para minijuegos con acceso a Game/SpriteBatch.
-    /// Carga contenido una sola vez en el primer push y lo descarga al salir.
-    /// </summary>
     public abstract class GameScreen : Screen
     {
         private bool _contentLoaded;

@@ -43,17 +43,10 @@ namespace EscapeRoom.Screens
 
         protected override void LoadContent()
         {
-            try
-            {
-                _playerTex = Assets.Load<Texture2D>("player");
-                _enemyTex = Assets.Load<Texture2D>("enemigo");
-                _keyTex = Assets.Load<Texture2D>("llave");
-                _jumpscareTex = Assets.Load<Texture2D>("jumpscare");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error cargando texturas: {ex.Message}");
-            }
+            _playerTex = Assets.Player;
+            _enemyTex = Assets.Enemigo;
+            _keyTex = Assets.Llave;
+            _jumpscareTex = Assets.Jumpscare;
 
             _pixelTex = CreatePixelTexture();
             _maze = new MazeLayout();
@@ -63,9 +56,9 @@ namespace EscapeRoom.Screens
             _enemy.SetMaze(_maze);
 
             _keys = new MazeKey[KEYS_NEEDED];
-            _keys[0] = new MazeKey(_keyTex, new Vector2(5 * TILE_SIZE, 15 * TILE_SIZE));
-            _keys[1] = new MazeKey(_keyTex, new Vector2(20 * TILE_SIZE, 5 * TILE_SIZE));
-            _keys[2] = new MazeKey(_keyTex, new Vector2(15 * TILE_SIZE, 25 * TILE_SIZE));
+            _keys[0] = new MazeKey(_keyTex, new Vector2(5 * TILE_SIZE, 5 * TILE_SIZE));
+            _keys[1] = new MazeKey(_keyTex, new Vector2(15 * TILE_SIZE, 12 * TILE_SIZE));
+            _keys[2] = new MazeKey(_keyTex, new Vector2(27 * TILE_SIZE, 15 * TILE_SIZE));
 
             ResetGame();
         }
@@ -627,4 +620,4 @@ namespace EscapeRoom.Screens
         public override bool Equals(object obj) =>
             obj is MazeNode other && X == other.X && Y == other.Y;
     }
-}
+}  
