@@ -8,6 +8,10 @@ using EscapeRoom.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using EscapeRoom.UI;
+{
+    
+}
 
 namespace EscapeRoom.Screens
 {
@@ -16,6 +20,7 @@ namespace EscapeRoom.Screens
         Evan _evan;
         readonly List<Rectangle> _solids = new();
         bool _debug;
+        DialogueBox _hud;
 
         Rectangle _dstPiso, _dstBorde;
         Rectangle _dstCamaRosa, _dstMesita, _dstCuadro;
@@ -96,6 +101,8 @@ namespace EscapeRoom.Screens
                 Scale = _evanScale,
                 Speed = 140f
             };
+            _hud = new DialogueBox(Assets.Fuente);
+            _hud.Enqueue("Presiona E para interactuar con los objetos.");
         }
 
         static Rectangle ScaleToHeight(Texture2D tex, int viewportW, int viewportH)
@@ -112,6 +119,10 @@ namespace EscapeRoom.Screens
                 _debug = !_debug;
 
             _evan.Update(gt, _solids);
+            _hud.Update();
+
+            if (Input.KeyPressed(Keys.E))
+                HandleInteraction();
 
             var evCenter = new Point(
                 (int)(_evan.Pos.X + Assets.EvanFrente1.Width * _evan.Scale / 2),
@@ -127,6 +138,39 @@ namespace EscapeRoom.Screens
                 return;
             }
         }
+        Rectangle EvanBounds()
+        {
+            var tex = Assets.EvanFrente1;
+            int w = (int)(tex.Width * _evan.Scale);
+            int h = (int)(tex.Height * _evan.Scale);
+            int shrinkY = (int)(h * 0.35f);
+            return new Rectangle((int)_evan.Pos.X, (int)(_evan.Pos.Y + shrinkY), w, h - shrinkY);
+        }
+
+        bool IsNear(Rectangle target, int padding = 20)
+        {
+            var expanded = target;
+            expanded.Inflate(padding, padding);
+            return expanded.Intersects(EvanBounds());
+        }
+
+        void HandleInteraction()
+        {
+            if (IsNear(_dstCuadro))
+            {
+                ScreenManager.Push(new BalloonGameScreen());
+                return;
+            }
+
+            if (IsNear(_dstCamaRosa) || IsNear(_dstMesita))
+            {
+                _hud.Enqueue("nada por aqui");
+                return;
+            }
+
+            _hud.Enqueue("nada por aqui");
+        }
+
 
         public override void Draw(GameTime gt)
         {
@@ -140,6 +184,8 @@ namespace EscapeRoom.Screens
             Batcher.Draw(Assets.Recuadro, _dstCuadro, Color.White);
 
             _evan.Draw(Batcher);
+
+            _hud.Draw(Batcher, Device.Viewport);
 
             if (_debug)
             {

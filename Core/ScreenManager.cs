@@ -32,6 +32,14 @@ namespace EscapeRoom.Core
             Push(s);
         }
 
+        public static void Pop()
+        {
+            if (_stack.Count > 0)
+            {
+                _stack.Pop().OnPop();
+            }
+        }
+
         public static void Update(GameTime gt)
         {
             if (_stack.Count > 0) _stack.Peek().Update(gt);

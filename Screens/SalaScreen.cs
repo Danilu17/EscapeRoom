@@ -8,6 +8,7 @@ using EscapeRoom.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using EscapeRoom.UI;
 
 namespace EscapeRoom.Screens
 {
@@ -18,6 +19,7 @@ namespace EscapeRoom.Screens
         Evan _evan;
         readonly List<Rectangle> _solids = new();
         bool _debug;
+        DialogueBox _hud;
 
         Rectangle _dstBackground;
         Rectangle _dstPiso, _dstBorde;
@@ -107,6 +109,9 @@ namespace EscapeRoom.Screens
 
             _evan = new Evan(spawn) { Scale = _evanScale, Speed = 140f };
 
+            _hud = new DialogueBox(Assets.Fuente);
+            _hud.Enqueue("Explora y presiona E cerca de los objetos para revisarlos.");
+
             // Opcional: correr tests en DEBUG una vez
 #if DEBUG
             EscapeRoom.Core.SpawnHelperTests.Run();
@@ -127,6 +132,10 @@ namespace EscapeRoom.Screens
 
             _evan.Update(gt, _solids);
             var evCenter = EvanCenter();
+            _hud.Update();
+
+            if (Input.KeyPressed(Keys.E))
+                HandleInteraction();
 
             if (_doorBottomRect.Contains(evCenter))
             {
@@ -140,6 +149,32 @@ namespace EscapeRoom.Screens
             {
                 ScreenManager.Replace(new Sala2Screen(evCenter.Y, _evan.Scale)); return;
             }
+        }
+
+        Rectangle EvanBounds()
+        {
+            int w = (int)(Assets.EvanFrente1.Width * _evan.Scale);
+            int h = (int)(Assets.EvanFrente1.Height * _evan.Scale);
+            int shrinkY = (int)(h * 0.35f);
+            return new Rectangle((int)_evan.Pos.X, (int)(_evan.Pos.Y + shrinkY), w, h - shrinkY);
+        }
+
+        bool IsNear(Rectangle target, int padding = 22)
+        {
+            var expanded = target;
+            expanded.Inflate(padding, padding);
+            return expanded.Intersects(EvanBounds());
+        }
+
+        void HandleInteraction()
+        {
+            if (IsNear(_dstReloj) || IsNear(_dstCuadro1) || IsNear(_dstCuadro2))
+            {
+                _hud.Enqueue("nada por aqui");
+                return;
+            }
+
+            _hud.Enqueue("nada por aqui");
         }
 
         Point EvanCenter()
@@ -159,6 +194,8 @@ namespace EscapeRoom.Screens
             Batcher.Draw(Assets.Cuadros2, _dstCuadro2, Color.White);
             Batcher.Draw(Assets.Reloj, _dstReloj, Color.White);
             _evan.Draw(Batcher);
+
+            _hud.Draw(Batcher, Device.Viewport);
 
             if (_debug)
             {

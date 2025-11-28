@@ -119,6 +119,7 @@ namespace EscapeRoom.Screens
                 _tutorialTimer = 4.0;
                 GameFlags.BedroomIntroShown = true;
             }
+            _hud.Enqueue("Acercate a los objetos y presiona E para interactuar.");
         }
 
         static Rectangle ScaleToHeight(Texture2D tex, int viewportW, int viewportH)
@@ -140,6 +141,9 @@ namespace EscapeRoom.Screens
             if (_tutorialTimer > 0)
                 _tutorialTimer -= gt.ElapsedGameTime.TotalSeconds;
 
+            if (Input.KeyPressed(Keys.E))
+                HandleInteraction();
+
             var evCenter = new Point(
                 (int)(_evan.Pos.X + Assets.EvanFrente1.Width * _evan.Scale / 2),
                 (int)(_evan.Pos.Y + Assets.EvanFrente1.Height * _evan.Scale / 2));
@@ -153,6 +157,39 @@ namespace EscapeRoom.Screens
                 ));
                 return;
             }
+        }
+
+        Rectangle EvanBounds()
+        {
+            var tex = Assets.EvanFrente1;
+            int w = (int)(tex.Width * _evan.Scale);
+            int h = (int)(tex.Height * _evan.Scale);
+            int shrinkY = (int)(h * 0.35f);
+            return new Rectangle((int)_evan.Pos.X, (int)(_evan.Pos.Y + shrinkY), w, h - shrinkY);
+        }
+
+        bool IsNear(Rectangle target, int padding = 24)
+        {
+            var expanded = target;
+            expanded.Inflate(padding, padding);
+            return expanded.Intersects(EvanBounds());
+        }
+
+        void HandleInteraction()
+        {
+            if (IsNear(_dstMesitadeluz))
+            {
+                ScreenManager.Push(new RacingGameScreen());
+                return;
+            }
+
+            if (IsNear(_dstCama) || IsNear(_dstBorde))
+            {
+                _hud.Enqueue("nada por aqui");
+                return;
+            }
+
+            _hud.Enqueue("nada por aqui");
         }
 
         public override void Draw(GameTime gt)
