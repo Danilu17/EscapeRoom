@@ -18,7 +18,7 @@ namespace EscapeRoom.Screens
         bool _debug;
 
         Rectangle _dstPiso, _dstBorde;
-        Rectangle _dstAlfombra, _dstSillon, _dstTv;
+        Rectangle _dstAlfombra, _dstSillon, _dstTv, _dstPuerta;
         Rectangle _doorRightRect;
         float _scale;
 
@@ -27,6 +27,12 @@ namespace EscapeRoom.Screens
 
         public static float SpawnOffsetX_Sala2 = -5f;
         public static float SpawnOffsetY_Sala2 = 0f;
+
+        // ---- CONTROLES VISUALES DE LA PUERTA ----
+        const float PuertaMarginRatio = 0f;  // por qué: deja borde visual dentro del hueco
+        const float PuertaScale = 5f;  // por qué: >1 agranda, <1 achica
+        const int PuertaOffsetXPx = -725;    // por qué: negativo = más a la izquierda
+        const int PuertaOffsetYPx = 55;      // por qué: desplaza verticalmente
 
         public Sala2Screen(float entryY, float evanScale)
         {
@@ -53,15 +59,31 @@ namespace EscapeRoom.Screens
 
             Sala2Colliders.Build(_dstBorde, _scale, _solids, out _doorRightRect, _dstSillon, _dstTv);
 
+            // Spawn Evan
             var evTex = Assets.EvanFrente1;
             int evW = (int)(evTex.Width * _evanScale);
             int evH = (int)(evTex.Height * _evanScale);
-
             var spawn = SpawnHelper.SpawnAtDoor(_doorRightRect, evW, evH, DoorSide.Right, desiredCenter: _entryY, inset: 5f);
             spawn.X += SpawnOffsetX_Sala2;
             spawn.Y += SpawnOffsetY_Sala2;
-
             _evan = new Evan(spawn) { Scale = _evanScale, Speed = 140f };
+
+            // ---- Colocar Puerta.png en el hueco derecho con control de tamaño y posición ----
+            int maxW = (int)(_doorRightRect.Width * (1f - PuertaMarginRatio));
+            int maxH = (int)(_doorRightRect.Height * (1f - PuertaMarginRatio));
+
+            float texAR = (float)Assets.Puerta.Width / Assets.Puerta.Height;
+            int baseW = (int)Math.Min(maxW, maxH * texAR);
+            int baseH = (int)(baseW / texAR);
+
+            // Escala adicional solicitada (puede exceder el hueco si quieres que se vea más grande)
+            int puertaW = (int)(baseW * PuertaScale);
+            int puertaH = (int)(baseH * PuertaScale);
+
+            int puertaX = _doorRightRect.X + (_doorRightRect.Width - puertaW) / 2 + PuertaOffsetXPx;
+            int puertaY = _doorRightRect.Y + (_doorRightRect.Height - puertaH) / 2 + PuertaOffsetYPx;
+
+            _dstPuerta = new Rectangle(puertaX, puertaY, puertaW, puertaH);
         }
 
         static Rectangle ScaleToHeight(Texture2D tex, int viewportW, int viewportH)
@@ -84,7 +106,8 @@ namespace EscapeRoom.Screens
 
             if (_doorRightRect.Contains(evCenter))
             {
-                ScreenManager.Replace(new SalaScreen(SalaEntryPoint.FromSala2, evCenter.Y, _evan.Scale)); return;
+                ScreenManager.Replace(new SalaScreen(SalaEntryPoint.FromSala2, evCenter.Y, _evan.Scale));
+                return;
             }
         }
 
@@ -96,12 +119,17 @@ namespace EscapeRoom.Screens
             Batcher.Draw(Assets.Alfombra, _dstAlfombra, Color.White);
             Batcher.Draw(Assets.Sillon, _dstSillon, Color.White);
             Batcher.Draw(Assets.Tv, _dstTv, Color.White);
+
+            // Puerta en el hueco derecho
+            Batcher.Draw(Assets.Puerta, _dstPuerta, Color.White);
+
             _evan.Draw(Batcher);
 
             if (_debug)
             {
                 foreach (var r in _solids) Batcher.Draw(Assets.Pixel, r, new Color(255, 0, 0, 90));
                 Batcher.Draw(Assets.Pixel, _doorRightRect, new Color(0, 255, 0, 90));
+                Batcher.Draw(Assets.Pixel, _dstPuerta, new Color(0, 0, 255, 60));
             }
             Batcher.End();
         }
